@@ -17,9 +17,19 @@ export default class NewBill {
   }
   handleChangeFile = e => {
     e.preventDefault()
+    // Pour récupérer le fichier sélectionné
     const file = this.document.querySelector(`input[data-testid="file"]`).files[0]
+    // Pour extraire la variable fileName
     const filePath = e.target.value.split(/\\/g)
     const fileName = filePath[filePath.length-1]
+
+    // Ajout de la vérification d'extension
+    const fileExtension = fileName.split('.').pop().toLowerCase();
+    if (!['jpg', 'jpeg', 'png'].includes(fileExtension)) {
+      alert('Veuillez sélectionner un fichier image (jpg, jpeg, png)');
+      return;
+    }
+
     const formData = new FormData()
     const email = JSON.parse(localStorage.getItem("user")).email
     formData.append('file', file)
