@@ -47,10 +47,10 @@ export default class NewBill {
           noContentType: true
         }
       })
-      .then(({ fileUrl, key }) => {
-        console.log(fileUrl)
+      .then(({ filePath, key }) => {
+        console.log('Chemin du fichier:', filePath);
         this.billId = key
-        this.fileUrl = fileUrl
+        this.fileUrl = filePath
         this.fileName = fileName
       }).catch(error => console.error(error))
   }
@@ -59,7 +59,7 @@ export default class NewBill {
     // console.log('e.target.querySelector(`input[data-testid="datepicker"]`).value', e.target.querySelector(`input[data-testid="datepicker"]`).value)
     console.log('Date sélectionnée:', e.target.querySelector(`input[data-testid="datepicker"]`).value);
     console.log('Montant:', e.target.querySelector(`input[data-testid="amount"]`).value);
-    console.log('URL du fichier:', this.fileUrl);
+    // console.log('URL du fichier:', this.fileUrl);
     console.log('Nom du fichier:', this.fileName);
     
     const email = JSON.parse(localStorage.getItem("user")).email
