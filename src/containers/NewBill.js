@@ -23,6 +23,9 @@ export default class NewBill {
     const filePath = e.target.value.split(/\\/g)
     const fileName = filePath[filePath.length - 1]
 
+    console.log('Fichier sélectionné:', file);
+    console.log('Nom du fichier:', fileName);
+
     // Ajout de la vérification d'extension
     // const fileExtension = fileName.split('.').pop().toLowerCase();
     // if (!['jpg', 'jpeg', 'png'].includes(fileExtension)) {
@@ -53,7 +56,12 @@ export default class NewBill {
   }
   handleSubmit = e => {
     e.preventDefault()
-    console.log('e.target.querySelector(`input[data-testid="datepicker"]`).value', e.target.querySelector(`input[data-testid="datepicker"]`).value)
+    // console.log('e.target.querySelector(`input[data-testid="datepicker"]`).value', e.target.querySelector(`input[data-testid="datepicker"]`).value)
+    console.log('Date sélectionnée:', e.target.querySelector(`input[data-testid="datepicker"]`).value);
+    console.log('Montant:', e.target.querySelector(`input[data-testid="amount"]`).value);
+    console.log('URL du fichier:', this.fileUrl);
+    console.log('Nom du fichier:', this.fileName);
+    
     const email = JSON.parse(localStorage.getItem("user")).email
     const bill = {
       email,
