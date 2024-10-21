@@ -63,4 +63,20 @@ describe("Given I am connected as an employee", () => {
     });
   });
 
+  describe("When I click on the New Bill button", () => {
+    test("It should open the New Bill page", async () => {
+      const onNavigate = pathname => { document.body.innerHTML = ROUTES({ pathname }); };
+      Object.defineProperty(window, "localStorage", { value: localStorageMock });
+      window.localStorage.setItem("user", JSON.stringify({ type: "Employee" }));
+      const billsContainer = new Bills({ document, onNavigate, store: null, localStorage: window.localStorage });
+      document.body.innerHTML = BillsUI({ data: bills });
+
+      const btnNewBill = await screen.getByTestId("btn-new-bill");
+      const handleClickNewBill = jest.fn(() => billsContainer.handleClickNewBill);
+      btnNewBill.addEventListener("click", handleClickNewBill);
+
+      userEvent.click(btnNewBill);
+      expect(handleClickNewBill).toHaveBeenCalled();
+    });
+  });
 });
