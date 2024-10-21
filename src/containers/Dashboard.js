@@ -150,7 +150,7 @@ export default class {
   
     // Retire les anciens événements de clic pour éviter les conflits
     bills.forEach(bill => {
-      $(`#open-bill${bill.id}`).off('click');
+      $(`#open-bill${bill.id}`).off('click'); //.off('click') pour supprimer les anciens événements attachés
       $(`#open-bill${bill.id}`).click((e) => this.handleEditTicket(e, bill, bills));
     });
   
