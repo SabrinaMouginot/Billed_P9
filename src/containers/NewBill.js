@@ -27,10 +27,11 @@ export default class NewBill {
     console.log('Nom du fichier:', fileName);
 
     // Ajout de la vérification d'extension
-    // const fileExtension = fileName.split('.').pop().toLowerCase();
-    // if (!['jpg', 'jpeg', 'png'].includes(fileExtension)) {
-    if (!['image/jpeg', 'image/png'].includes(file.type)) {
+    if (!['image/jpeg', 'image/png'].includes(file.type)) { 
+    //Pour vérifier si le type de fichier sélectionné par l'utilisateur est présent dans le tableau de type de fichier autorisé
       alert('Veuillez sélectionner un fichier image (jpg, jpeg, png)');
+      //Si le le type fichier sélectionné n'est pas le bon, ce msg d'alerte s'affiche à l'écran.
+      this.document.querySelector(`input[data-testid="file"]`).value = ""
       return;
     }
 
