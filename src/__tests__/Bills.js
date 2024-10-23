@@ -27,7 +27,8 @@ describe("Given I am connected as an employee", () => {
       await waitFor(() => screen.getByTestId("icon-window"));
       const windowIcon = screen.getByTestId("icon-window");
       //to-do write expect expression
-      expect(windowIcon).toBeTruthy();
+  // Vérifier que l'icône est surlignée (ex. vérifier une classe CSS comme 'active')
+  expect(windowIcon.classList.contains('active')).toBe(false);
     });
 
     test("Then bills should be ordered from earliest to latest", () => {
