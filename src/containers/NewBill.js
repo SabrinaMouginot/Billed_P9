@@ -81,20 +81,52 @@ export default class NewBill {
     // console.log('URL du fichier:', this.fileUrl);
     console.log('Nom du fichier:', this.fileName);
 
-    const email = JSON.parse(localStorage.getItem("user")).email
-    const bill = {
-      email,
-      type: e.target.querySelector(`select[data-testid="expense-type"]`).value,
-      name: e.target.querySelector(`input[data-testid="expense-name"]`).value,
-      amount: parseInt(e.target.querySelector(`input[data-testid="amount"]`).value),
-      date: e.target.querySelector(`input[data-testid="datepicker"]`).value,
-      vat: e.target.querySelector(`input[data-testid="vat"]`).value,
-      pct: parseInt(e.target.querySelector(`input[data-testid="pct"]`).value) || 20,
-      commentary: e.target.querySelector(`textarea[data-testid="commentary"]`).value,
-      fileUrl: this.fileUrl,
-      fileName: this.fileName,
-      status: 'pending'
-    }
+    // const email = JSON.parse(localStorage.getItem("user")).email
+    // const bill = {
+    //   email,
+    //   type: e.target.querySelector(`select[data-testid="expense-type"]`).value,
+    //   name: e.target.querySelector(`input[data-testid="expense-name"]`).value,
+    //   amount: parseInt(e.target.querySelector(`input[data-testid="amount"]`).value),
+    //   date: e.target.querySelector(`input[data-testid="datepicker"]`).value,
+    //   vat: e.target.querySelector(`input[data-testid="vat"]`).value,
+    //   pct: parseInt(e.target.querySelector(`input[data-testid="pct"]`).value) || 20,
+    //   commentary: e.target.querySelector(`textarea[data-testid="commentary"]`).value,
+    //   fileUrl: this.fileUrl,
+    //   fileName: this.fileName,
+    //   status: 'pending'
+    // }
+
+
+  // Récupération des valeurs des champs
+  const type = e.target.querySelector(`select[data-testid="expense-type"]`).value;
+  const name = e.target.querySelector(`input[data-testid="expense-name"]`).value;
+  const amount = parseInt(e.target.querySelector(`input[data-testid="amount"]`).value);
+  const date = e.target.querySelector(`input[data-testid="datepicker"]`).value;
+  const fileUrl = this.fileUrl;
+  const fileName = this.fileName;
+
+  // Ajout de vérifications pour les champs obligatoires
+  if (!type || !name || !amount || !date || !fileUrl || !fileName) {
+    alert('Veuillez remplir tous les champs obligatoires.');
+    return;
+  }
+
+  const email = JSON.parse(localStorage.getItem("user")).email;
+  const bill = {
+    email,
+    type,
+    name,
+    amount,
+    date,
+    vat: e.target.querySelector(`input[data-testid="vat"]`).value,
+    pct: parseInt(e.target.querySelector(`input[data-testid="pct"]`).value) || 20,
+    commentary: e.target.querySelector(`textarea[data-testid="commentary"]`).value,
+    fileUrl,
+    fileName,
+    status: 'pending'
+  };
+
+
     this.updateBill(bill)
     this.onNavigate(ROUTES_PATH['Bills'])
   }
