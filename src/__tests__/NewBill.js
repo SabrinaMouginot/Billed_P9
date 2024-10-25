@@ -4,7 +4,7 @@
 
 import { screen, waitFor } from "@testing-library/dom"
 import NewBillUI from "../views/NewBillUI.js"
-// import NewBill from "../containers/NewBill.js"
+import NewBill from "../containers/NewBill.js"
 
 import { ROUTES_PATH } from "../constants/routes.js";
 import router from "../app/Router.js";
@@ -12,6 +12,8 @@ import { localStorageMock } from "../__mocks__/localStorage.js";
 
 describe("Given I am connected as an employee", () => {
   describe("When I am on NewBill Page", () => {
+
+    // POUR VERIFIER QUE L'ICONE POUR NEWBILL EST SURLIGNEE
     test("Then NewBill icon in vertical layout should be highlighted", async () => {
       const html = NewBillUI()
       document.body.innerHTML = html
@@ -32,14 +34,49 @@ describe("Given I am connected as an employee", () => {
 
     })
 
-    test("Then the NewBill form should be visible", () => {
+
+    // POUR VERIFIER QUE LE FORMULAIRE NEWBILL EST PRESENT
+        test("Then the NewBill form should be visible", () => {
       const html = NewBillUI();
       document.body.innerHTML = html;
     
-      // Vérification que le formulaire NewBill est présent
+      // Vérifier le formulaire NewBill est présent
       const formNewBill = screen.getByTestId("form-new-bill");
       expect(formNewBill).toBeTruthy();
     });
+
+
+    // POUR VERIFIER QUE LE FORMULAIRE VIDE NE SE SOUMET PAS
+    test("When I submit an empty form, it should not navigate away from the form", () => {
+      const html = NewBillUI();
+      document.body.innerHTML = html;
     
+      // Mock du localStorage
+      Object.defineProperty(window, "localStorage", { value: localStorageMock });
+      window.localStorage.setItem("user", JSON.stringify({ type: "Employee" }));
+    
+      // Pour initialiser NewBill avec les mocks nécessaires
+      const onNavigate = jest.fn();
+      const newBill = new NewBill({ document, onNavigate, store: null, localStorage: window.localStorage });
+    
+      // Pour espionner la méthode handleSubmit
+      const handleSubmitSpy = jest.spyOn(newBill, "handleSubmit");
+    
+      // Pour relier handleSubmit au formulaire
+      const form = screen.getByTestId("form-new-bill");
+      form.addEventListener("submit", newBill.handleSubmit);
+    
+      // Pour simuler que la soumission du formulaire vide
+      form.dispatchEvent(new Event("submit"));
+    
+      // Pour vérifier que la méthode handleSubmit a été appelée
+      expect(handleSubmitSpy).toHaveBeenCalled();
+    
+      // Pour vérifier que la navigation n'a pas été déclenchée si le formulaire est vide
+      expect(onNavigate).not.toHaveBeenCalled();
+    });
+    
+    
+
   })
 })
