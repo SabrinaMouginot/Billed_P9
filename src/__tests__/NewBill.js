@@ -31,5 +31,15 @@ describe("Given I am connected as an employee", () => {
       expect(mailIcon.classList.contains('active')).toBe(true);
 
     })
+
+    test("Then the NewBill form should be visible", () => {
+      const html = NewBillUI();
+      document.body.innerHTML = html;
+    
+      // Vérification que le formulaire NewBill est présent
+      const formNewBill = screen.getByTestId("form-new-bill");
+      expect(formNewBill).toBeTruthy();
+    });
+    
   })
 })
