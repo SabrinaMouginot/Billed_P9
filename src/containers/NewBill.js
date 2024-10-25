@@ -6,6 +6,24 @@ export default class NewBill {
     this.document = document
     this.onNavigate = onNavigate
     this.store = store
+
+
+    
+    // Sélection des icônes de la barre de navigation
+    this.emailIcon = this.document.querySelector(`[data-testid="icon-mail"]`);
+    this.windowIcon = this.document.querySelector(`[data-testid="icon-window"]`);
+
+    // Ajout de la classe 'active' à l'icône email
+    if (this.emailIcon) {
+      this.emailIcon.classList.add('active');
+    }
+
+    // Suppression de la classe 'active' de l'icône précédente
+    if (this.windowIcon) {
+      this.windowIcon.classList.remove('active');
+    }
+
+
     const formNewBill = this.document.querySelector(`form[data-testid="form-new-bill"]`)
     formNewBill.addEventListener("submit", this.handleSubmit)
     const file = this.document.querySelector(`input[data-testid="file"]`)
@@ -27,8 +45,8 @@ export default class NewBill {
     console.log('Nom du fichier:', fileName);
 
     // Ajout de la vérification d'extension
-    if (!['image/jpeg', 'image/png'].includes(file.type)) { 
-    //Pour vérifier si le type de fichier sélectionné par l'utilisateur est présent dans le tableau de type de fichier autorisé
+    if (!['image/jpeg', 'image/png'].includes(file.type)) {
+      //Pour vérifier si le type de fichier sélectionné par l'utilisateur est présent dans le tableau de type de fichier autorisé
       alert('Veuillez sélectionner un fichier image (jpg, jpeg, png)');
       //Si le le type fichier sélectionné n'est pas le bon, ce msg d'alerte s'affiche à l'écran.
       this.document.querySelector(`input[data-testid="file"]`).value = ""
@@ -62,7 +80,7 @@ export default class NewBill {
     console.log('Montant:', e.target.querySelector(`input[data-testid="amount"]`).value);
     // console.log('URL du fichier:', this.fileUrl);
     console.log('Nom du fichier:', this.fileName);
-    
+
     const email = JSON.parse(localStorage.getItem("user")).email
     const bill = {
       email,
