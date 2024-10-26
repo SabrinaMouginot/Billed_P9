@@ -9,6 +9,7 @@ import NewBill from "../containers/NewBill.js"
 import { ROUTES_PATH } from "../constants/routes.js";
 import router from "../app/Router.js";
 import { localStorageMock } from "../__mocks__/localStorage.js"; 
+import userEvent from "@testing-library/user-event";
 
 describe("Given I am connected as an employee", () => {
   describe("When I am on NewBill Page", () => {
@@ -76,6 +77,22 @@ describe("Given I am connected as an employee", () => {
       expect(onNavigate).not.toHaveBeenCalled();
     });
     
+    //POUR VERIFIER L'UPDOAD D'UN fICHIER INCORRECT
+    test("When I upload a file with an incorrect format, it should display an alert", () => {
+      const html = NewBillUI();
+      document.body.innerHTML = html;
+    
+      const onNavigate = jest.fn();
+      const newBill = new NewBill({ document, onNavigate, store: null, localStorage: window.localStorage });
+    
+      window.alert = jest.fn();
+    
+      const fileInput = screen.getByTestId("file");
+      const file = new File(["dummy content"], "example.txt", { type: "text/plain" });
+      userEvent.upload(fileInput, file);
+    
+      expect(window.alert).toHaveBeenCalledWith('Veuillez sélectionner un fichier image (jpg, jpeg, png)');
+    });
     
 
   })
