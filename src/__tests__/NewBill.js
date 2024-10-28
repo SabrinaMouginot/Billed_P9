@@ -95,67 +95,105 @@ describe("Given I am connected as an employee", () => {
       expect(window.alert).toHaveBeenCalledWith('Veuillez sélectionner un fichier image (jpg, jpeg, png)');
     });
 
-    // POUR VERIFIER QUE L'UPLOAD D'UNE IMAGE CORRECTE
+    // POUR VERIFIER L'UPLOAD D'UNE IMAGE CORRECTE
     // Test pour vérifier l'upload d'une image correcte
+    test("When I upload a correct file format, it should call the createBill method", async () => {
+      const html = NewBillUI();
+      document.body.innerHTML = html;
+
+      const onNavigate = jest.fn();
+
+      // Utiliser un mockStore pour simuler l'appel à la méthode create
+      const mockStore = {
+        bills: jest.fn(() => ({
+          create: jest.fn().mockResolvedValue({}),
+        })),
+      };
+
+      // Initialiser le composant NewBill avec le mockStore
+      const newBill = new NewBill({ document, onNavigate, store: mockStore, localStorage: window.localStorage });
+
+      // Sélectionner l'élément d'input pour l'upload de fichier
+      const fileInput = screen.getByTestId("file");
+      const file = new File(["dummy content"], "example.png", { type: "image/png" });
+
+      // Simuler l'upload du fichier
+      await userEvent.upload(fileInput, file);
+
+      // Vérifier que la méthode create a bien été appelée
+      expect(mockStore.bills().create).toHaveBeenCalled();
+      console.log('mockStore.bills().create was called:', mockStore.bills().create.mock.calls.length);
+    });
+
     // test("When I upload a correct file format, it should call the createBill method", async () => {
     //   const html = NewBillUI();
     //   document.body.innerHTML = html;
 
     //   const onNavigate = jest.fn();
 
-    //   // Utiliser un mockStore pour simuler l'appel à la méthode create
+    //   // Mock du store avec un mock plus précis
     //   const mockStore = {
     //     bills: jest.fn(() => ({
     //       create: jest.fn().mockResolvedValue({}),
     //     })),
     //   };
 
-    //   // Initialiser le composant NewBill avec le mockStore
+    //   // Utilisation du mockStore
+    //   const createMock = mockStore.bills().create;
+
     //   const newBill = new NewBill({ document, onNavigate, store: mockStore, localStorage: window.localStorage });
 
-    //   // Sélectionner l'élément d'input pour l'upload de fichier
+    //   // Sélection de l'élément input pour l'upload de fichier
     //   const fileInput = screen.getByTestId("file");
     //   const file = new File(["dummy content"], "example.png", { type: "image/png" });
 
-    //   // Simuler l'upload du fichier
-    //   await userEvent.upload(fileInput, file);
+    //   // Upload du fichier
+    //   userEvent.upload(fileInput, file);
 
-    //   // Vérifier que la méthode create a bien été appelée
-    //   expect(mockStore.bills().create).toHaveBeenCalled();
-    //   console.log('mockStore.bills().create was called:', mockStore.bills().create.mock.calls.length);
+    //   // Ajout d'un délai pour attendre la résolution de la promesse
+    //   await new Promise(resolve => setTimeout(resolve, 500));
+
+    //   // Vérification que la méthode `create` a bien été appelée
+    //   expect(createMock).toHaveBeenCalledTimes(1);
     // });
 
-    test("When I upload a correct file format, it should call the createBill method", async () => {
+
+
+    // POUR VERIFIER LA SOUMISSION DU FORMULAIRE
+    test("When I submit a filled form, it should call the updateBill method and navigate to Bills", async () => {
       const html = NewBillUI();
       document.body.innerHTML = html;
-    
+
       const onNavigate = jest.fn();
-    
-      // Mock du store avec un mock plus précis
       const mockStore = {
         bills: jest.fn(() => ({
-          create: jest.fn().mockResolvedValue({}),
+          update: jest.fn().mockResolvedValue({}),
         })),
       };
-    
-      // Utilisation du mockStore
-      const createMock = mockStore.bills().create;
-    
       const newBill = new NewBill({ document, onNavigate, store: mockStore, localStorage: window.localStorage });
-    
-      // Sélection de l'élément input pour l'upload de fichier
-      const fileInput = screen.getByTestId("file");
+
+      // Remplir des champs du formulaire
+      const form = screen.getByTestId("form-new-bill");
+      const inputDate = screen.getByTestId("datepicker");
+      const inputAmount = screen.getByTestId("amount");
+      const inputFile = screen.getByTestId("file");
+
+      userEvent.type(inputDate, "2024-10-21");
+      userEvent.type(inputAmount, "200");
       const file = new File(["dummy content"], "example.png", { type: "image/png" });
-    
-      // Upload du fichier
-      userEvent.upload(fileInput, file);
-    
-      // Ajout d'un délai pour attendre la résolution de la promesse
-      await new Promise(resolve => setTimeout(resolve, 500));
-    
-      // Vérification que la méthode `create` a bien été appelée
-      expect(createMock).toHaveBeenCalledTimes(1);
+      userEvent.upload(inputFile, file);
+
+      // Espionner de la méthode updateBill
+      const updateBillSpy = jest.spyOn(newBill, "updateBill");
+
+      // Simuler de la soumission du formulaire
+      form.dispatchEvent(new Event("submit"));
+
+      // Vérifier que la méthode updateBill a été appelée
+      expect(updateBillSpy).toHaveBeenCalled();
+      // Vérifier la redirection vers la page "Bills"
+      expect(onNavigate).toHaveBeenCalledWith(ROUTES_PATH.Bills);
     });
-    
+
   })
 })
