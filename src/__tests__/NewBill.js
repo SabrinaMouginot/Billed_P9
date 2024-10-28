@@ -8,8 +8,9 @@ import NewBill from "../containers/NewBill.js"
 
 import { ROUTES_PATH } from "../constants/routes.js";
 import router from "../app/Router.js";
-import { localStorageMock } from "../__mocks__/localStorage.js"; 
+import { localStorageMock } from "../__mocks__/localStorage.js";
 import userEvent from "@testing-library/user-event";
+
 
 describe("Given I am connected as an employee", () => {
   describe("When I am on NewBill Page", () => {
@@ -37,10 +38,10 @@ describe("Given I am connected as an employee", () => {
 
 
     // POUR VERIFIER QUE LE FORMULAIRE NEWBILL EST PRESENT
-        test("Then the NewBill form should be visible", () => {
+    test("Then the NewBill form should be visible", () => {
       const html = NewBillUI();
       document.body.innerHTML = html;
-    
+
       // Vérifier le formulaire NewBill est présent
       const formNewBill = screen.getByTestId("form-new-bill");
       expect(formNewBill).toBeTruthy();
@@ -51,49 +52,110 @@ describe("Given I am connected as an employee", () => {
     test("When I submit an empty form, it should not navigate away from the form", () => {
       const html = NewBillUI();
       document.body.innerHTML = html;
-    
+
       // Mock du localStorage
       Object.defineProperty(window, "localStorage", { value: localStorageMock });
       window.localStorage.setItem("user", JSON.stringify({ type: "Employee" }));
-    
+
       // Pour initialiser NewBill avec les mocks nécessaires
       const onNavigate = jest.fn();
       const newBill = new NewBill({ document, onNavigate, store: null, localStorage: window.localStorage });
-    
+
       // Pour espionner la méthode handleSubmit
       const handleSubmitSpy = jest.spyOn(newBill, "handleSubmit");
-    
+
       // Pour relier handleSubmit au formulaire
       const form = screen.getByTestId("form-new-bill");
       form.addEventListener("submit", newBill.handleSubmit);
-    
+
       // Pour simuler que la soumission du formulaire vide
       form.dispatchEvent(new Event("submit"));
-    
+
       // Pour vérifier que la méthode handleSubmit a été appelée
       expect(handleSubmitSpy).toHaveBeenCalled();
-    
+
       // Pour vérifier que la navigation n'a pas été déclenchée si le formulaire est vide
       expect(onNavigate).not.toHaveBeenCalled();
     });
-    
+
     //POUR VERIFIER L'UPDOAD D'UN fICHIER INCORRECT
     test("When I upload a file with an incorrect format, it should display an alert", () => {
       const html = NewBillUI();
       document.body.innerHTML = html;
-    
+
       const onNavigate = jest.fn();
       const newBill = new NewBill({ document, onNavigate, store: null, localStorage: window.localStorage });
-    
+
       window.alert = jest.fn();
-    
+
       const fileInput = screen.getByTestId("file");
       const file = new File(["dummy content"], "example.txt", { type: "text/plain" });
       userEvent.upload(fileInput, file);
-    
+
       expect(window.alert).toHaveBeenCalledWith('Veuillez sélectionner un fichier image (jpg, jpeg, png)');
     });
-    
 
+    // POUR VERIFIER QUE L'UPLOAD D'UNE IMAGE CORRECTE
+    // Test pour vérifier l'upload d'une image correcte
+    // test("When I upload a correct file format, it should call the createBill method", async () => {
+    //   const html = NewBillUI();
+    //   document.body.innerHTML = html;
+
+    //   const onNavigate = jest.fn();
+
+    //   // Utiliser un mockStore pour simuler l'appel à la méthode create
+    //   const mockStore = {
+    //     bills: jest.fn(() => ({
+    //       create: jest.fn().mockResolvedValue({}),
+    //     })),
+    //   };
+
+    //   // Initialiser le composant NewBill avec le mockStore
+    //   const newBill = new NewBill({ document, onNavigate, store: mockStore, localStorage: window.localStorage });
+
+    //   // Sélectionner l'élément d'input pour l'upload de fichier
+    //   const fileInput = screen.getByTestId("file");
+    //   const file = new File(["dummy content"], "example.png", { type: "image/png" });
+
+    //   // Simuler l'upload du fichier
+    //   await userEvent.upload(fileInput, file);
+
+    //   // Vérifier que la méthode create a bien été appelée
+    //   expect(mockStore.bills().create).toHaveBeenCalled();
+    //   console.log('mockStore.bills().create was called:', mockStore.bills().create.mock.calls.length);
+    // });
+
+    test("When I upload a correct file format, it should call the createBill method", async () => {
+      const html = NewBillUI();
+      document.body.innerHTML = html;
+    
+      const onNavigate = jest.fn();
+    
+      // Mock du store avec un mock plus précis
+      const mockStore = {
+        bills: jest.fn(() => ({
+          create: jest.fn().mockResolvedValue({}),
+        })),
+      };
+    
+      // Utilisation du mockStore
+      const createMock = mockStore.bills().create;
+    
+      const newBill = new NewBill({ document, onNavigate, store: mockStore, localStorage: window.localStorage });
+    
+      // Sélection de l'élément input pour l'upload de fichier
+      const fileInput = screen.getByTestId("file");
+      const file = new File(["dummy content"], "example.png", { type: "image/png" });
+    
+      // Upload du fichier
+      userEvent.upload(fileInput, file);
+    
+      // Ajout d'un délai pour attendre la résolution de la promesse
+      await new Promise(resolve => setTimeout(resolve, 500));
+    
+      // Vérification que la méthode `create` a bien été appelée
+      expect(createMock).toHaveBeenCalledTimes(1);
+    });
+    
   })
 })
