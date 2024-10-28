@@ -195,5 +195,22 @@ describe("Given I am connected as an employee", () => {
       expect(onNavigate).toHaveBeenCalledWith(ROUTES_PATH.Bills);
     });
 
+
+
+    // POUR DECONNECTER L'EMPLOYE
+    test("When I click on the logout button, I should be redirected to the Login page", () => {
+      const html = NewBillUI();
+      document.body.innerHTML = html;
+
+      const onNavigate = jest.fn();
+      const newBill = new NewBill({ document, onNavigate, store: null, localStorage: window.localStorage });
+
+      const logoutButton = document.querySelector('#layout-disconnect');
+      userEvent.click(logoutButton);
+
+      expect(onNavigate).toHaveBeenCalledWith(ROUTES_PATH.Login);
+    });
+
+
   })
 })
