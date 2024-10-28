@@ -1,29 +1,10 @@
 import { ROUTES_PATH } from '../constants/routes.js'
 import Logout from "./Logout.js"
-
 export default class NewBill {
   constructor({ document, onNavigate, store, localStorage }) {
     this.document = document
     this.onNavigate = onNavigate
     this.store = store
-
-
-    
-    // Sélection des icônes de la barre de navigation
-    this.emailIcon = this.document.querySelector(`[data-testid="icon-mail"]`);
-    this.windowIcon = this.document.querySelector(`[data-testid="icon-window"]`);
-
-    // Ajout de la classe 'active' à l'icône email
-    if (this.emailIcon) {
-      this.emailIcon.classList.add('active');
-    }
-
-    // Suppression de la classe 'active' de l'icône précédente
-    if (this.windowIcon) {
-      this.windowIcon.classList.remove('active');
-    }
-
-
     const formNewBill = this.document.querySelector(`form[data-testid="form-new-bill"]`)
     formNewBill.addEventListener("submit", this.handleSubmit)
     const file = this.document.querySelector(`input[data-testid="file"]`)
@@ -33,19 +14,10 @@ export default class NewBill {
     this.billId = null
     new Logout({ document, localStorage, onNavigate })
   }
-
   handleChangeFile = e => {
-    console.log('File change event triggered');
     e.preventDefault()
-    // Pour récupérer le fichier sélectionné
     const file = this.document.querySelector(`input[data-testid="file"]`).files[0]
-    // Pour extraire la variable fileName
-    const filePath = e.target.value.split(/\\/g)
-    const fileName = filePath[filePath.length - 1]
-
-    console.log('Fichier sélectionné:', file);
-    console.log('Nom du fichier:', fileName);
-
+    // console.log('file', file);
     // Ajout de la vérification d'extension
     if (!['image/jpeg', 'image/png'].includes(file.type)) {
       //Pour vérifier si le type de fichier sélectionné par l'utilisateur est présent dans le tableau de type de fichier autorisé
@@ -54,12 +26,12 @@ export default class NewBill {
       this.document.querySelector(`input[data-testid="file"]`).value = ""
       return;
     }
-
+    const filePath = e.target.value.split(/\\/g)
+    const fileName = filePath[filePath.length - 1]
     const formData = new FormData()
     const email = JSON.parse(localStorage.getItem("user")).email
     formData.append('file', file)
     formData.append('email', email)
-
     this.store
       .bills()
       .create({
@@ -68,73 +40,34 @@ export default class NewBill {
           noContentType: true
         }
       })
-      .then(({ filePath, key }) => {
-        console.log('Chemin du fichier:', filePath);
+      .then(({ fileUrl, key }) => {
+        // console.log(fileUrl)
         this.billId = key
-        this.fileUrl = filePath
+        this.fileUrl = fileUrl
         this.fileName = fileName
+        // console.log('this.fileUrl', this.fileUrl);
       }).catch(error => console.error(error))
   }
-
-
   handleSubmit = e => {
     e.preventDefault()
     // console.log('e.target.querySelector(`input[data-testid="datepicker"]`).value', e.target.querySelector(`input[data-testid="datepicker"]`).value)
-    console.log('Date sélectionnée:', e.target.querySelector(`input[data-testid="datepicker"]`).value);
-    console.log('Montant:', e.target.querySelector(`input[data-testid="amount"]`).value);
-    // console.log('URL du fichier:', this.fileUrl);
-    console.log('Nom du fichier:', this.fileName);
-
-    // const email = JSON.parse(localStorage.getItem("user")).email
-    // const bill = {
-    //   email,
-    //   type: e.target.querySelector(`select[data-testid="expense-type"]`).value,
-    //   name: e.target.querySelector(`input[data-testid="expense-name"]`).value,
-    //   amount: parseInt(e.target.querySelector(`input[data-testid="amount"]`).value),
-    //   date: e.target.querySelector(`input[data-testid="datepicker"]`).value,
-    //   vat: e.target.querySelector(`input[data-testid="vat"]`).value,
-    //   pct: parseInt(e.target.querySelector(`input[data-testid="pct"]`).value) || 20,
-    //   commentary: e.target.querySelector(`textarea[data-testid="commentary"]`).value,
-    //   fileUrl: this.fileUrl,
-    //   fileName: this.fileName,
-    //   status: 'pending'
-    // }
-
-
-  // Récupération des valeurs des champs
-  const type = e.target.querySelector(`select[data-testid="expense-type"]`).value;
-  const name = e.target.querySelector(`input[data-testid="expense-name"]`).value;
-  const amount = parseInt(e.target.querySelector(`input[data-testid="amount"]`).value);
-  const date = e.target.querySelector(`input[data-testid="datepicker"]`).value;
-  const fileUrl = this.fileUrl;
-  const fileName = this.fileName;
-
-  // Ajout de vérifications pour les champs obligatoires
-  if (!type || !name || !amount || !date || !fileUrl || !fileName) {
-    alert('Veuillez remplir tous les champs obligatoires.');
-    return;
-  }
-
-  const email = JSON.parse(localStorage.getItem("user")).email;
-  const bill = {
-    email,
-    type,
-    name,
-    amount,
-    date,
-    vat: e.target.querySelector(`input[data-testid="vat"]`).value,
-    pct: parseInt(e.target.querySelector(`input[data-testid="pct"]`).value) || 20,
-    commentary: e.target.querySelector(`textarea[data-testid="commentary"]`).value,
-    fileUrl,
-    fileName,
-    status: 'pending'
-  };
-
-
+    const email = JSON.parse(localStorage.getItem("user")).email
+    const bill = {
+      email,
+      type: document.querySelector(`select[data-testid="expense-type"]`).value,
+      name: document.querySelector(`input[data-testid="expense-name"]`).value,
+      amount: parseInt(document.querySelector(`input[data-testid="amount"]`).value),
+      date: document.querySelector(`input[data-testid="datepicker"]`).value,
+      vat: document.querySelector(`input[data-testid="vat"]`).value,
+      pct: parseInt(document.querySelector(`input[data-testid="pct"]`).value) || 20,
+      commentary: document.querySelector(`textarea[data-testid="commentary"]`).value,
+      fileUrl: this.fileUrl,
+      fileName: this.fileName,
+      status: 'pending'
+    }
     this.updateBill(bill)
     this.onNavigate(ROUTES_PATH['Bills'])
   }
-
   // not need to cover this function by tests
   updateBill = (bill) => {
     if (this.store) {

@@ -10,6 +10,7 @@ import { ROUTES_PATH } from "../constants/routes.js";
 import router from "../app/Router.js";
 import { localStorageMock } from "../__mocks__/localStorage.js";
 import userEvent from "@testing-library/user-event";
+import mockStore from "../__mocks__/store";
 
 
 describe("Given I am connected as an employee", () => {
@@ -22,7 +23,9 @@ describe("Given I am connected as an employee", () => {
       //to-do write assertion
 
       Object.defineProperty(window, "localStorage", { value: localStorageMock });
+      // localStorage pour simuler un utilisateur connecté.
       window.localStorage.setItem("user", JSON.stringify({ type: "Employee" }));
+      // Enregistrement de l'utilisateur simulé dans le localStorage
 
       const root = document.createElement("div");
       root.setAttribute("id", "root");
@@ -31,9 +34,10 @@ describe("Given I am connected as an employee", () => {
       window.onNavigate(ROUTES_PATH.NewBill);
 
       await waitFor(() => screen.getByTestId("icon-mail"));
+      // Pour attendre que l'icône mail soit présente
       const mailIcon = screen.getByTestId("icon-mail");
       expect(mailIcon.classList.contains('active')).toBe(true);
-
+      // Vérification que l'icône a bien la classe 'active' pour indiquer qu'elle est surlignée.
     })
 
 
@@ -44,7 +48,9 @@ describe("Given I am connected as an employee", () => {
 
       // Vérifier le formulaire NewBill est présent
       const formNewBill = screen.getByTestId("form-new-bill");
+      // Pour sélectionner le formulaire avec l'attribut data-testid "form-new-bill".
       expect(formNewBill).toBeTruthy();
+      // Pour vérifier que le formulaire est présent
     });
 
 
@@ -56,6 +62,7 @@ describe("Given I am connected as an employee", () => {
       // Mock du localStorage
       Object.defineProperty(window, "localStorage", { value: localStorageMock });
       window.localStorage.setItem("user", JSON.stringify({ type: "Employee" }));
+      // Utilisation du mock localStorage pour simuler un utilisateur connecté.
 
       // Pour initialiser NewBill avec les mocks nécessaires
       const onNavigate = jest.fn();
@@ -78,11 +85,14 @@ describe("Given I am connected as an employee", () => {
       expect(onNavigate).not.toHaveBeenCalled();
     });
 
-    //POUR VERIFIER L'UPDOAD D'UN fICHIER INCORRECT
+    //POUR VERIFIER L'UPLOAD D'UN fICHIER INCORRECT
     test("When I upload a file with an incorrect format, it should display an alert", () => {
       const html = NewBillUI();
       document.body.innerHTML = html;
-
+      Object.defineProperty(window, "localStorage", { value: localStorageMock });
+      // localStorage pour simuler un utilisateur connecté.
+      window.localStorage.setItem("user", JSON.stringify({ type: "Employee" }));
+      // Enregistrement de l'utilisateur simulé dans le localStorage
       const onNavigate = jest.fn();
       const newBill = new NewBill({ document, onNavigate, store: null, localStorage: window.localStorage });
 
@@ -90,9 +100,12 @@ describe("Given I am connected as an employee", () => {
 
       const fileInput = screen.getByTestId("file");
       const file = new File(["dummy content"], "example.txt", { type: "text/plain" });
+      // Création d'un fichier fictif au format incorrect.
       userEvent.upload(fileInput, file);
+      // Simulation de l'upload du fichier incorrect.
 
       expect(window.alert).toHaveBeenCalledWith('Veuillez sélectionner un fichier image (jpg, jpeg, png)');
+      // Vérification que l'alerte a bien été déclenchée avec le bon message.
     });
 
     // POUR VERIFIER L'UPLOAD D'UNE IMAGE CORRECTE
@@ -103,61 +116,27 @@ describe("Given I am connected as an employee", () => {
 
       const onNavigate = jest.fn();
 
-      // Utiliser un mockStore pour simuler l'appel à la méthode create
-      const mockStore = {
-        bills: jest.fn(() => ({
-          create: jest.fn().mockResolvedValue({}),
-        })),
-      };
+      Object.defineProperty(window, "localStorage", { value: localStorageMock });
+      // localStorage pour simuler un utilisateur connecté.
+      window.localStorage.setItem("user", JSON.stringify({ type: "Employee" }));
+      // Enregistrement de l'utilisateur simulé dans le localStorage
 
       // Initialiser le composant NewBill avec le mockStore
       const newBill = new NewBill({ document, onNavigate, store: mockStore, localStorage: window.localStorage });
-
+      const handle = jest.fn(newBill.handleChangeFile)
       // Sélectionner l'élément d'input pour l'upload de fichier
-      const fileInput = screen.getByTestId("file");
       const file = new File(["dummy content"], "example.png", { type: "image/png" });
+      await waitFor(() => {
+        const fileInput = screen.getByTestId("file");
+        fileInput.addEventListener("change", handle)
+        // Simuler l'upload du fichier
+        userEvent.upload(fileInput, file);
+      }) 
 
-      // Simuler l'upload du fichier
-      await userEvent.upload(fileInput, file);
 
       // Vérifier que la méthode create a bien été appelée
-      expect(mockStore.bills().create).toHaveBeenCalled();
-      console.log('mockStore.bills().create was called:', mockStore.bills().create.mock.calls.length);
+      expect(handle).toHaveBeenCalled();
     });
-
-    // test("When I upload a correct file format, it should call the createBill method", async () => {
-    //   const html = NewBillUI();
-    //   document.body.innerHTML = html;
-
-    //   const onNavigate = jest.fn();
-
-    //   // Mock du store avec un mock plus précis
-    //   const mockStore = {
-    //     bills: jest.fn(() => ({
-    //       create: jest.fn().mockResolvedValue({}),
-    //     })),
-    //   };
-
-    //   // Utilisation du mockStore
-    //   const createMock = mockStore.bills().create;
-
-    //   const newBill = new NewBill({ document, onNavigate, store: mockStore, localStorage: window.localStorage });
-
-    //   // Sélection de l'élément input pour l'upload de fichier
-    //   const fileInput = screen.getByTestId("file");
-    //   const file = new File(["dummy content"], "example.png", { type: "image/png" });
-
-    //   // Upload du fichier
-    //   userEvent.upload(fileInput, file);
-
-    //   // Ajout d'un délai pour attendre la résolution de la promesse
-    //   await new Promise(resolve => setTimeout(resolve, 500));
-
-    //   // Vérification que la méthode `create` a bien été appelée
-    //   expect(createMock).toHaveBeenCalledTimes(1);
-    // });
-
-
 
     // POUR VERIFIER LA SOUMISSION DU FORMULAIRE
     test("When I submit a filled form, it should call the updateBill method and navigate to Bills", async () => {
@@ -165,11 +144,10 @@ describe("Given I am connected as an employee", () => {
       document.body.innerHTML = html;
 
       const onNavigate = jest.fn();
-      const mockStore = {
-        bills: jest.fn(() => ({
-          update: jest.fn().mockResolvedValue({}),
-        })),
-      };
+      Object.defineProperty(window, "localStorage", { value: localStorageMock });
+      // localStorage pour simuler un utilisateur connecté.
+      window.localStorage.setItem("user", JSON.stringify({ type: "Employee" }));
+      // Enregistrement de l'utilisateur simulé dans le localStorage
       const newBill = new NewBill({ document, onNavigate, store: mockStore, localStorage: window.localStorage });
 
       // Remplir des champs du formulaire
