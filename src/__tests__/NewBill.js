@@ -36,7 +36,7 @@ describe("Given I am connected as an employee", () => {
       await waitFor(() => screen.getByTestId("icon-mail"));
       // Pour attendre que l'icône mail soit présente
       const mailIcon = screen.getByTestId("icon-mail");
-      expect(mailIcon.classList.contains('active')).toBe(true);
+      expect(mailIcon.classList.contains('active-icon')).toBe(true);
       // Vérification que l'icône a bien la classe 'active' pour indiquer qu'elle est surlignée.
     })
 
