@@ -132,7 +132,7 @@ describe("Given I am connected as an employee", () => {
         fileInput.addEventListener("change", handle)
         // Simuler l'upload du fichier
         userEvent.upload(fileInput, file);
-      }) 
+      })
       // Vérifier que la méthode create a bien été appelée
       expect(handle).toHaveBeenCalled();
     });
@@ -180,15 +180,17 @@ describe("Given I am connected as an employee", () => {
       const html = NewBillUI();
       document.body.innerHTML = html;
 
+      // Mock de la fonction de navigation
       const onNavigate = jest.fn();
+
+      // Initialisation du composant NewBill avec les paramètres simulés
       const newBill = new NewBill({ document, onNavigate, store: null, localStorage: window.localStorage });
-
+      // Sélection du bouton de déconnexion
       const logoutButton = document.querySelector('#layout-disconnect');
+      // Simulation du clic sur le bouton de déconnexion
       userEvent.click(logoutButton);
-
+      // Vérification que la fonction de navigation a été appelée pour rediriger vers la page de connexion
       expect(onNavigate).toHaveBeenCalledWith(ROUTES_PATH.Login);
     });
-
-
-  })
+  });
 })
